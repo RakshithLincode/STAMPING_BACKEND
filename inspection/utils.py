@@ -216,15 +216,18 @@ def get_defect_list(inspectionid):
 
     if len(dataset) > 0:
         dataset = dataset[0]
-        #s = datetime.datetime.strptime(dataset.get('inference_start_time',""), '%Y-%m-%d %H:%M:%S')
-        #e = datetime.datetime.strptime(dataset.get('inference_end_time',""), '%Y-%m-%d %H:%M:%S')
-        #dataset['duration'] = str(e-s)
         dataset['total'] = str(total_production)
         dataset['total_accepted'] = str(total_accepted_count)
         dataset['total_rejected'] = str(total_rejected_count)
         if "None" in dataset['label_angle']:
             dataset['label_angle'] = []
-        # dataset['inference_urls'] = inference_urls
+        radius_value = CacheHelper().get_json("top_value")
+        centroid_to_edge_value_1 = CacheHelper().get_json("bottom_value")
+        centroid_to_edge_value_2 = CacheHelper().get_json("left_value")
+        if  CacheHelper().get_json("label_angle") == True:
+            dataset['label_angle'] = radius_value
+            dataset["centroid_to_edge_value_1"] = centroid_to_edge_value_1
+            dataset["centroid_to_edge_value_2"] = centroid_to_edge_value_2
     else:
         part_name = CacheHelper().get_json('part_name')
         dataset = {'part_name':part_name}
@@ -341,7 +344,7 @@ def save_inspection_details_util(data):
     try:
         mp = MongoHelper().getCollection(str(inspection_id)+"_results")
         _id = mp.insert_one(inspection_details)
-        CacheHelper.set_json({"_id_new":mp.inserted_id})
+        # CacheHelper.set_json({"_id_new":mp.inserted_id})
         return "success",200
     except Exception as e:
         print(e)
@@ -391,11 +394,17 @@ def set_config_util(data):
     bottom_value = data.get('bottom')
     left_value = data.get('left')
     right_value = data.get('right')
+    CacheHelper().set_json({"label_angle":True})
+    CacheHelper().set_json({"top_value":top_value})
+    CacheHelper().set_json({"bottom_value":bottom_value})
+    CacheHelper().set_json({"left_value":left_value})
+
+
 
     pay_load_data = {
-        "angle_value":top_value,
-        "label_to_sealer_value_1":bottom_value,
-        "label_to_sealer_value_2":left_value,
+        "radius_value":top_value,
+        "centroid_to_edge_value_1":bottom_value,
+        "centroid_to_edge_value_2":left_value,
     }
 
     mp = MongoHelper().getCollection('measurment_values')
