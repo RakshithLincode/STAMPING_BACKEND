@@ -233,13 +233,7 @@ def get_defect_list(inspectionid):
         dataset = {'part_name':part_name}
     return dataset, 200 
 
-
-    
-
-
 def get_inference_feed(cam_id):
-    # cam_id = int(cam_id)
-    # if cam_id < 11:  ## OCR frame
     print(cam_id)
     key = str(cam_id)
     while True:
